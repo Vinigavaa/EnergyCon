@@ -1,0 +1,6 @@
+@EnergyCom_HostAddress = http://localhost:5001
+
+GET {{EnergyCom_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
