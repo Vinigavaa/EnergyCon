@@ -1,11 +1,11 @@
-﻿using System.ComponentModel;
+﻿using Domain.Entidades;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EnergyCom.Domains
 {
-    public class Uc
+    public sealed class Uc : BaseEntity
     {
-        public int Id { get; set; }
 
         public int IdConsumidor { get; set; }
 

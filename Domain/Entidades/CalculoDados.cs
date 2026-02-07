@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Domain.Entidades;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EnergyCom.Domains
 {
-    public class CalculoDados
+    public sealed class CalculoDados : BaseEntity
     {
-        public int Id { get; set; }
         public int Iduc { get; set; }
         [ForeignKey(nameof(Iduc))]
         public Uc? Uc { get; set; }
@@ -14,6 +14,14 @@ namespace EnergyCom.Domains
         public double ConsumoTotalKwh { get; set; }
         public double ConsumoPontaKwh { get; set; }
         public double ConsumoForaKwh { get; set; }
+        public double TarifaKwh { get; set; }
+        public double AliquotaIcms { get; set; }
+        public double AliquotaPis { get; set; }
+        public double AliquotaCofins { get; set; }
+        public double ValorIcms { get; set; }
+        public double ValorPis { get; set; }
+        public double ValorCofins { get; set; }
+        public double ValorSemImpostos { get; set; }
         public ICollection<Fatura> Faturas { get; set; }
     }
 }

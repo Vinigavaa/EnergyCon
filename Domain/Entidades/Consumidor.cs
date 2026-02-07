@@ -1,8 +1,9 @@
-﻿namespace EnergyCom.Domains
+﻿using Domain.Entidades;
+
+namespace EnergyCom.Domains
 {
-    public class Consumidor
+    public sealed class Consumidor : BaseEntity
     {
-        public int Id { get; set; } 
 
         public string Name { get; set; }
 

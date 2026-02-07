@@ -1,11 +1,11 @@
-﻿using System.ComponentModel;
+﻿using Domain.Entidades;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EnergyCom.Domains
 {
-    public class Fatura
+    public sealed class Fatura : BaseEntity
     {
-        public int Id { get; set; }
 
         public double Valor { get; set; }
 

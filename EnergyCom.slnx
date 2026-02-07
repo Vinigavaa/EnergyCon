@@ -1,3 +1,13 @@
 <Solution>
-  <Project Path="EnergyCom/EnergyCom.csproj" />
+  <Folder Name="/Core/">
+    <Project Path="Application/Application.csproj" Id="b5e3ebf0-2e0f-46d8-945c-e1888e748c9c" />
+    <Project Path="Domain/Domain.csproj" Id="92c0f602-4cca-4785-bbd7-60afce579448" />
+  </Folder>
+  <Folder Name="/Infra/">
+    <Project Path="Persistense/Persistense.csproj" Id="fa04fad9-36c9-4ffd-83c6-0f1ec2d79d15" />
+  </Folder>
+  <Folder Name="/Presentation/">
+    <Project Path="EnergyCom/EnergyCom.csproj" />
+  </Folder>
+  <Folder Name="/Test/" />
 </Solution>
