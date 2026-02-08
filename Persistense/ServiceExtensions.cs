@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Aplic;
+using Application.Interfaces;
 using Application.Services;
 using Domain.Interfaces;
 using Domain.Services;
@@ -26,9 +27,11 @@ namespace Persistense
 
             // Domain Services
             services.AddScoped<IUcService, UcService>();
+            services.AddScoped<IConsumidorService, ConsumidorService>();
 
             // Application Services
             services.AddScoped<IAplicUc, AplicUc>();
+            services.AddScoped<IAplicConsumidor, AplicConsumidor>();
         }
     }
 }

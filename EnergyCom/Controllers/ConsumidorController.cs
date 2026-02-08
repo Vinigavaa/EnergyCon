@@ -1,6 +1,5 @@
-﻿using Persistense.Context;
-using EnergyCom.Domains;
-using EnergyCom.Dto;
+﻿using Application.DTOs;
+using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnergyCom.Controllers
@@ -9,97 +8,91 @@ namespace EnergyCom.Controllers
     [Route("api/[controller]")]
     public class ConsumidorController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IAplicConsumidor _aplicConsumidor;
 
-        public ConsumidorController(AppDbContext context)
+        public ConsumidorController(IAplicConsumidor aplicConsumidor)
         {
-            _context = context;
+            _aplicConsumidor = aplicConsumidor;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Consumidor>> Get()
+        public async Task<ActionResult<IEnumerable<ConsumidorResponseDTO>>> Get(CancellationToken cancellationToken)
         {
-            var consumidor = _context.Consumidor.ToList();
-            if (consumidor is null)
+            var consumidores = await _aplicConsumidor.GetAll(cancellationToken);
+            if (consumidores is null || consumidores.Count == 0)
             {
-                return NotFound();
+                return NotFound("Não há nenhum consumidor cadastrado!");
             }
-            return consumidor;
+            return Ok(consumidores);
         }
 
         [HttpGet("{id}", Name = "ObterConsumidor")]
-        public ActionResult<Consumidor> Get(int id)
+        public async Task<ActionResult<ConsumidorResponseDTO>> Get(int id, CancellationToken cancellationToken)
         {
-            var consumidor = _context.Consumidor.FirstOrDefault(x => x.Id == id);
-            if(consumidor is null)
+            var consumidor = await _aplicConsumidor.GetById(id, cancellationToken);
+            if (consumidor is null)
             {
-                NotFound("Não existe um consumidor com esse id...");
+                return NotFound("Não há nenhum consumidor cadastrado com esse ID");
             }
-            return consumidor;
+            return Ok(consumidor);
         }
 
         [HttpPost]
-        public ActionResult Post(ConsumidorDTO consumidorDto)
+        public async Task<ActionResult<ConsumidorResponseDTO>> Post(ConsumidorDTO dto, CancellationToken cancellationToken)
         {
-            if(consumidorDto is null)
+            if (dto is null)
             {
                 return BadRequest();
             }
 
-            var consumidor = new Consumidor
+            try
             {
-                Name = consumidorDto.Name,
-                Inscricao = consumidorDto.Inscricao,
-                DebitoConta = consumidorDto.DebitoConta
-            };
+               var consumidor = await _aplicConsumidor.Create(dto, cancellationToken);
+               return new CreatedAtRouteResult("ObterConsumidor", new { id = consumidor.Id }, consumidor);
 
-            _context.Consumidor.Add(consumidor);
-            _context.SaveChanges();
-            return new CreatedAtRouteResult("ObterConsumidor",
-                new { id = consumidor.Id }, consumidor);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(int id, ConsumidorDTO consumidorDto)
+        public async Task<ActionResult<ConsumidorResponseDTO>> Put(int id, ConsumidorDTO dto, CancellationToken cancellationToken)
         {
-            if (consumidorDto is null)
+            if(dto is null)
             {
                 return BadRequest();
             }
 
-            var consumidor = _context.Consumidor.FirstOrDefault(x => x.Id == id);
-            if (consumidor is null)
+            try
             {
-                return NotFound("Não existe um consumidor com esse id...");
+                var consumidor = await _aplicConsumidor.Update(id, dto, cancellationToken);
+                return Ok(consumidor);
+            } catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
-
-            consumidor.Name = consumidorDto.Name;
-            consumidor.Inscricao = consumidorDto.Inscricao;
-            consumidor.DebitoConta = consumidorDto.DebitoConta;
-
-            _context.SaveChanges();
-            return Ok(consumidor);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult<ConsumidorResponseDTO>> Delete(int id, CancellationToken cancellationToken)
         {
-            var consumidor = _context.Consumidor.FirstOrDefault(c => c.Id == id);
-            if(consumidor is null)
+            var IdExiste = _aplicConsumidor.GetById(id, cancellationToken);
+
+            if (IdExiste is null)
             {
-                return NotFound();
+                return BadRequest("Id não existe!");
             }
 
-            var possuiUcs = _context.Uc.Any(u => u.IdConsumidor == id);
-
-            if (possuiUcs)
+            try
             {
-                return Conflict("Não é possível excluir o consumidor pois existem Ucs associadas a ele.");
+                await _aplicConsumidor.Delete(id, cancellationToken);
+                return Ok();
+            } catch(Exception ex)
+            {
+                return NotFound(ex.Message);
             }
-            _context.Consumidor.Remove(consumidor);
-            _context.SaveChanges();
-
-            return Ok(consumidor);
         }
     }
 }

@@ -51,12 +51,15 @@ namespace Application.Aplic
 
         public async Task<ConsumidorResponseDTO> Update(int id, ConsumidorDTO dto, CancellationToken cancellationToken)
         {
-            var consumidor = new Consumidor
+            var consumidor = await _consumidorRepository.GetById(id, cancellationToken);
+            if (consumidor is null)
             {
-                Name = dto.Name,
-                Inscricao = dto.Inscricao,
-                DebitoConta = dto.DebitoConta,
-            };
+                throw new KeyNotFoundException("Não existe um Consumidor com esse Id.");
+            }
+
+            consumidor.Name = dto.Name;
+            consumidor.Inscricao = dto.Inscricao;
+            consumidor.DebitoConta = dto.DebitoConta;
 
             _consumidorRepository.Update(consumidor);
             await _unitOfWork.Commit(cancellationToken);
