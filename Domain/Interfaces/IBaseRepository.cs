@@ -7,7 +7,7 @@ namespace Domain.Interfaces
         void Create(T entity);
         void Update(T entity);
         void Delete(T entity);
-        Task<T> Get(int id, CancellationToken cancellationToken);
-        Task<List<T>> GetById(int id, CancellationToken cancellationToken);
+        Task<T> GetById(int id, CancellationToken cancellationToken);
+        Task<List<T>> GetAll(CancellationToken cancellationToken);
     }
 }

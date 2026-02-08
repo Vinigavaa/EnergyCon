@@ -1,4 +1,4 @@
-﻿namespace EnergyCom.Dto
+﻿namespace Application.DTOs
 {
     public class ConsumidorDTO
     {

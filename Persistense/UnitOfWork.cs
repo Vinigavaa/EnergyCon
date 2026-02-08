@@ -1,5 +1,5 @@
 ﻿using Domain.Interfaces;
-using EnergyCom.Context;
+using Persistense.Context;
 
 namespace Persistense
 {
@@ -14,7 +14,7 @@ namespace Persistense
 
         public async Task Commit(CancellationToken cancellation)
         {
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellation);
         }
     }
 }

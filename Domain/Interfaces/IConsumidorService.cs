@@ -2,7 +2,7 @@
 
 namespace Domain.Interfaces
 {
-    public interface IUcRepository : IBaseRepository<Uc>
+    public interface IConsumidorService
     {
     }
 }

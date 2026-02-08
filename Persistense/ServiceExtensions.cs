@@ -1,8 +1,11 @@
-﻿using Domain.Interfaces;
-using EnergyCom.Context;
+﻿using Application.Interfaces;
+using Application.Services;
+using Domain.Interfaces;
+using Domain.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Persistense.Context;
 
 namespace Persistense
 {
@@ -13,11 +16,19 @@ namespace Persistense
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
             services.AddDbContext<AppDbContext>(opt =>
-                opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+                opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+                    b => b.MigrationsAssembly("EnergyCom")));
 
+            // Repositories
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
             services.AddScoped<IUcRepository, UcRepository>();
+            services.AddScoped<IConsumidorRepository, ConsumidorRepository>();
+
+            // Domain Services
+            services.AddScoped<IUcService, UcService>();
+
+            // Application Services
+            services.AddScoped<IAplicUc, AplicUc>();
         }
     }
 }

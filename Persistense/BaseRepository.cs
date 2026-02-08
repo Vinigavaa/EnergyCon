@@ -1,7 +1,7 @@
 ﻿using Domain.Entidades;
 using Domain.Interfaces;
-using EnergyCom.Context;
 using Microsoft.EntityFrameworkCore;
+using Persistense.Context;
 
 namespace Persistense
 {
@@ -16,30 +16,30 @@ namespace Persistense
 
         public void Create(T entity)
         {
-            entity.CreatedAt = DateTime.Now;
-            Context.Add(entity);
+            entity.CreatedAt = DateTimeOffset.Now;
+            Context.Set<T>().Add(entity);
         }
-         
+
         public void Update(T entity)
         {
-            entity.UpdatedAt = DateTime.Now;
-            Context.Add(entity);
+            entity.UpdatedAt = DateTimeOffset.Now;
+            Context.Set<T>().Update(entity);
         }
 
         public void Delete(T entity)
         {
-            entity.DeleteAt = DateTime.Now;
-            Context.Add(entity);
+            entity.DeleteAt = DateTimeOffset.Now;
+            Context.Set<T>().Remove(entity);
         }
 
-        public async Task<List<T>> GetById(int id, CancellationToken cancellation)
+        public async Task<T> GetById(int id, CancellationToken cancellationToken)
         {
-            return await Context.Set<T>().ToListAsync(cancellation);
+            return await Context.Set<T>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
-        public async Task<T> Get(int id, CancellationToken cancellation)
+        public async Task<List<T>> GetAll(CancellationToken cancellationToken)
         {
-            return await Context.Set<T>().FirstOrDefaultAsync(x => x.Id == id, cancellation);
+            return await Context.Set<T>().ToListAsync(cancellationToken);
         }
     }
 }

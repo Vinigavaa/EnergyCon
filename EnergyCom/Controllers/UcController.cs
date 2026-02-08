@@ -1,6 +1,5 @@
-﻿using EnergyCom.Context;
-using EnergyCom.Domains;
-using EnergyCom.Dto;
+﻿using Application.DTOs;
+using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnergyCom.Controllers
@@ -9,18 +8,18 @@ namespace EnergyCom.Controllers
     [Route("api/uc")]
     public class UcController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IAplicUc _aplicUcService;
 
-        public UcController(AppDbContext context)
+        public UcController(IAplicUc aplicUc)
         {
-            _context = context;
+            _aplicUcService = aplicUc;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Uc>> Get()
+        public async Task<ActionResult<IEnumerable<UcResponseDTO>>> Get(CancellationToken cancellationToken)
         {
-            var ucs = _context.Uc.ToList();
-            if(ucs is null) 
+            var ucs = await _aplicUcService.GetAll(cancellationToken);
+            if (ucs is null || ucs.Count == 0)
             {
                 return NotFound("Não existe nenhuma uc cadastrada.");
             }
@@ -28,10 +27,10 @@ namespace EnergyCom.Controllers
         }
 
         [HttpGet("{id}", Name = "ObterUcPorId")]
-        public ActionResult<Uc> GetById(int id)
+        public async Task<ActionResult<UcResponseDTO>> GetById(int id, CancellationToken cancellationToken)
         {
-            var uc = _context.Uc.FirstOrDefault(u => u.Id == id);
-            if(uc is null)
+            var uc = await _aplicUcService.GetById(id, cancellationToken);
+            if (uc is null)
             {
                 return NotFound("Não existe uma Uc com esse Id");
             }
@@ -39,67 +38,59 @@ namespace EnergyCom.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Uc> Post(UcDTO ucDTO)
+        public async Task<ActionResult<UcResponseDTO>> Post(UcDTO ucDTO, CancellationToken cancellationToken)
         {
             if (ucDTO is null)
             {
                 return BadRequest();
             }
 
-            var uc = new Uc
+            try
             {
-                IdConsumidor = ucDTO.IdConsumidor,
-                Grupo = ucDTO.Grupo,
-                Classe = ucDTO.Classe,
-                SubClasse = ucDTO.SubClasse,
-            };
-
-            var existConsumidor = _context.Consumidor.Any(c => c.Id == ucDTO.IdConsumidor);
-
-            if (!existConsumidor)
-            {
-                return BadRequest("Não existe esse consumidor em nossa base de dados!");
+                var uc = await _aplicUcService.Create(ucDTO, cancellationToken);
+                return new CreatedAtRouteResult("ObterUcPorId", new { id = uc.Id }, uc);
             }
-
-            _context.Uc.Add(uc);
-            _context.SaveChanges();
-
-            return new CreatedAtRouteResult("ObterUcPorId",
-                new { id = uc.Id }, uc);
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(int id, UcDTO ucDTO)
+        public async Task<ActionResult<UcResponseDTO>> Put(int id, UcDTO ucDTO, CancellationToken cancellationToken)
         {
             if (ucDTO is null)
             {
                 return BadRequest();
             }
 
-            var uc = _context.Uc.FirstOrDefault(u => u.Id == id);
-
-            uc.IdConsumidor = ucDTO.IdConsumidor;
-            uc.Classe = ucDTO.Classe;
-            uc.SubClasse = ucDTO.SubClasse;
-            uc.Grupo = ucDTO.Grupo;
-
-            _context.SaveChanges();
-            return Ok(uc);
-
+            try
+            {
+                var uc = await _aplicUcService.Update(id, ucDTO, cancellationToken);
+                return Ok(uc);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id, CancellationToken cancellationToken)
         {
-            var uc = _context.Uc.FirstOrDefault(c => c.Id == id);
-            if(uc is null)
+            try
             {
-                return NotFound();
+                await _aplicUcService.Delete(id, cancellationToken);
+                return NoContent();
             }
-            _context.Uc.Remove(uc);
-            _context.SaveChanges();
-            return Ok(uc);
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
-
     }
 }
